@@ -82,10 +82,6 @@ function onStorageStateChanged(storage) {
 
 /**
  * Handle on external storage.
- * 
- * 
- * Note:Samsung Tizen TV always uses "removable2" as label for external device. 
- * So listStorage and getStorage are not required.
  */ 
 function handleOnExternalDevice(options){
 	if(numOfMountedUSB == 0){
