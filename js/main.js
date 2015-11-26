@@ -1,5 +1,9 @@
+//This is not working on 2015/11/26 firmware of TV, because of firmware bug.
+
 var listener;
 var message;
+
+var numOfMountedUSB;
 
 //Initialize function
 var init = function() {
@@ -16,46 +20,53 @@ var init = function() {
 /**
  * Check how many USB are mounted
  */
-
 var checkMountState = function(){
-	tizen.filesystem.resolve('removable2', function(removable2){
-		var num = removable2.length;
-		listener.innerHTML = num + " USB is mounted";
-		message.innerHTML = num + " USB is mounted";
+	numOfMountedUSB = 0;
+	var USBLabelList = "";
+	tizen.filesystem.listStorages(function(storages){
+		for (var i = 0; i < storages.length; i++){
+			console.log(storages[i]);
+			if(storages[i].type == "EXTERNAL" && storages[i].state == "MOUNTED"){
+				numOfMountedUSB = numOfMountedUSB + 1;
+				USBLabelList += storages[i].label + " is mounted.<br/>"
+			}
+		}
+		listener.innerHTML = USBLabelList;
+		message.innerHTML = numOfMountedUSB + " USB is mounted";
 	}, function(error){
-		if(error.message == "NotFoundError"){
-			listener.innerHTML = "0 USB is mounted";
-			message.innerHTML = "0 USB is mounted";
-		}else{
-			message.innerHTML = "Error code : " + error.code + ", message:" + error.message;
-		}		
-	}, "r"); //You should use "r" to read 'removable2'
+		message.innerHTML = "Error code : " + error.code + ", message:" + error.message;
+	});
 }
 
 /**
  * List File list of first attached USB, if USB is mounted
  */
-
 var RetriveMounted = function(){
-	tizen.filesystem.resolve('removable2', function(removable2){
-		removable2.listFiles(function(usbs){
-			usbs[0].listFiles(function(files){
-				for(i = 0; i < files.length; i++) {
-					message.innerHTML += "file/directory list ["+ i + "] : "+ files[i].path+ files[i].name	+  "<br/>";
+	if(numOfMountedUSB == 0){
+		message.innerHTML = "USB is not mounted";
+	}else{
+		tizen.filesystem.listStorages(function(storages){
+			for (var i = 0; i < storages.length; i++){
+				if(storages[i].type == "EXTERNAL" && storages[i].state == "MOUNTED"){
+					tizen.filesystem.resolve(storages[i].label, function(removableStorage){
+						removableStorage.listFiles(function(files){
+								for(i = 0; i < files.length; i++) {
+									message.innerHTML += "file/directory list ["+ i + "] : "+ files[i].path+ files[i].name	+  "<br/>";
+								}
+							}, function(error){
+								message.innerHTML = "Error code : " + error.code + ", message:" + error.message;
+							});			
+						}, function(error){
+							message.innerHTML = "Error code : " + error.code + ", message:" + error.message;
+						});
+					
+					break;
 				}
-			}, function(error){
-				message.innerHTML = "Error code : " + error.code + ", message:" + error.message;
-			});						
+			}
 		}, function(error){
 			message.innerHTML = "Error code : " + error.code + ", message:" + error.message;
-		});			
-	}, function(error){
-		if(error.message == "NotFoundError"){
-			message.innerHTML = "USB is not mounted";
-		}else{
-			message.innerHTML = "Error code : " + error.code + ", message:" + error.message;
-		}		
-	}, "r"); //You should use "r" to read 'removable2'
+		});
+	}
 }
 
 
@@ -66,9 +77,7 @@ var RetriveMounted = function(){
  */
 
 function onStorageStateChanged(storage) {
-	if(storage.label == 'removable2'){
-		checkMountState();
-	}
+	checkMountState();
 }
 
 /**
@@ -79,50 +88,50 @@ function onStorageStateChanged(storage) {
  * So listStorage and getStorage are not required.
  */ 
 function handleOnExternalDevice(options){
-	tizen.filesystem.resolve('removable2', function(removable2){
-		removable2.listFiles(function(usbs){
-			tizen.filesystem.resolve(usbs[0].path + usbs[0].name, function(usb){
-				switch(options){
-					case 1:
-						console.log("create directory"); //create abc directory, if there is
-						createDirectory(usb);
-						break;
-					case 2:
-						console.log("create File"); //create abc.txt file, if there is
-						createFile(usb);
-						break;
-					case 3:
-						console.log("create File"); //read abc.txt file, if there is
-						readFile(usb);
-						break;
-					case 4:
-						console.log("Delete Directory"); //delete abc directory, if there is
-						deleteDirectory(usb);
-						break;
-					case 5:
-						console.log("Delete File"); //delete abc.txt file, if there is
-						deleteFile(usb);
-						break;
-					case 6:
-						console.log("Download File");
-						downloadToUsb(usb.path + usb.name);
-						break;
-               	}
-			}, function(error){
-				message.innerHTML = "Error code : " + error.code + ", message:" + error.message;
-			}, "rw"); //You should use "rw" to write file is very important					
+	if(numOfMountedUSB == 0){
+		message.innerHTML = "USB is not mounted";
+	}else{
+		tizen.filesystem.listStorages(function(storages){
+			for (var i = 0; i < storages.length; i++){
+				if(storages[i].type == "EXTERNAL" && storages[i].state == "MOUNTED"){
+					tizen.filesystem.resolve(storages[i].label, function(removableStorage){						
+						switch(options){
+						case 1:
+							console.log("create directory"); //create abc directory, if there is
+							createDirectory(removableStorage);
+							break;
+						case 2:
+							console.log("create File"); //create abc.txt file, if there is
+							createFile(removableStorage);
+							break;
+						case 3:
+							console.log("create File"); //read abc.txt file, if there is
+							readFile(removableStorage);
+							break;
+						case 4:
+							console.log("Delete Directory"); //delete abc directory, if there is
+							deleteDirectory(removableStorage);
+							break;
+						case 5:
+							console.log("Delete File"); //delete abc.txt file, if there is
+							deleteFile(removableStorage);
+							break;
+						case 6:
+							console.log("Download File");
+							downloadToUsb(removableStorage.path + removableStorage.name);
+							break;
+						}
+	               	});
+					
+					break;
+				}
+			}
 		}, function(error){
 			message.innerHTML = "Error code : " + error.code + ", message:" + error.message;
-		});			
-	}, function(error){
-		if(error.message == "NotFoundError"){
-			message.innerHTML = "USB is not mounted";
-		}else{
-			message.innerHTML = "Error code : " + error.code + ", message:" + error.message;
-		}		
-	}, "r"); //You should use "r" to read 'removable2' 
-};
-
+		});
+	}
+}
+	
 /**
  * create a Directory
  * 
