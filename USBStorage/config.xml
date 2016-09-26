@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="http://yourdomain/USBStorage" version="1.0.0" viewmodes="maximized">
-    <tizen:application id="p3YnsHF7zQ.USBStorage" package="p3YnsHF7zQ" required_version="2.3"/>
+<widget xmlns:tizen="http://tizen.org/ns/widgets" xmlns="http://www.w3.org/ns/widgets" id="http://yourdomain/USBStorage" version="1.0.0" viewmodes="maximized">
+    <tizen:application id="C1XBLeN7Bf.USBStorage" package="C1XBLeN7Bf" required_version="2.3"/>
     <content src="index.html"/>
     <feature name="http://tizen.org/feature/screen.size.normal.1080.1920"/>
     <icon src="icon.png"/>
