@@ -2,12 +2,11 @@
 <widget xmlns:tizen="http://tizen.org/ns/widgets" xmlns="http://www.w3.org/ns/widgets" id="http://yourdomain/USBStorage" version="1.0.0" viewmodes="maximized">
     <tizen:application id="C1XBLeN7Bf.USBStorage" package="C1XBLeN7Bf" required_version="2.3"/>
     <content src="index.html"/>
-    <feature name="http://tizen.org/feature/screen.size.normal.1080.1920"/>
+    <feature name="http://tizen.org/feature/screen.size.normal.all"/>
     <icon src="icon.png"/>
     <name>USBStorage</name>
     <tizen:privilege name="http://tizen.org/privilege/filesystem.read"/>
     <tizen:privilege name="http://tizen.org/privilege/filesystem.write"/>
     <tizen:privilege name="http://tizen.org/privilege/download"/>
     <tizen:profile name="tv-samsung-public"/>
-    <tizen:setting screen-orientation="landscape" context-menu="enable" background-support="disable" encryption="disable" install-location="auto" hwkey-event="enable"/>
 </widget>
